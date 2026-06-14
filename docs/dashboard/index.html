@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LARY AI — Painel de Acompanhamento</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface2: #334155;
+    --border: #475569;
+    --text: #f1f5f9;
+    --text2: #94a3b8;
+    --accent: #38bdf8;
+    --green: #22c55e;
+    --amber: #eab308;
+    --red: #ef4444;
+    --purple: #a855f7;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 24px;
+    min-height: 100vh;
+  }
+  .header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 32px; flex-wrap: wrap; gap: 16px;
+  }
+  .header h1 { font-size: 24px; font-weight: 700; }
+  .header h1 span { color: var(--accent); }
+  .header .meta { display: flex; gap: 24px; font-size: 13px; color: var(--text2); }
+  .header .meta strong { color: var(--text); }
+
+  .stats { display: flex; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
+  .stat-card {
+    background: var(--surface); border-radius: 12px; padding: 16px 24px;
+    flex: 1; min-width: 120px; border: 1px solid var(--border);
+  }
+  .stat-card .value { font-size: 28px; font-weight: 700; }
+  .stat-card .label { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+  .tabs { display: flex; gap: 4px; margin-bottom: 24px; }
+  .tab {
+    padding: 8px 20px; border-radius: 8px 8px 0 0; cursor: pointer;
+    font-size: 13px; font-weight: 500; background: var(--surface);
+    color: var(--text2); border: 1px solid var(--border); border-bottom: 0;
+    transition: .2s;
+  }
+  .tab:hover { background: var(--surface2); }
+  .tab.active { background: var(--surface2); color: var(--accent); }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .board { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 16px; }
+  .column {
+    background: var(--surface); border-radius: 12px; padding: 16px;
+    min-width: 280px; max-width: 320px; flex: 1;
+    border: 1px solid var(--border);
+  }
+  .column h3 {
+    font-size: 13px; text-transform: uppercase; letter-spacing: .5px;
+    color: var(--text2); margin-bottom: 12px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--border); display: flex; align-items: center; gap: 8px;
+  }
+  .column h3 .count {
+    background: var(--surface2); padding: 0 8px; border-radius: 999px;
+    font-size: 11px;
+  }
+  .card {
+    background: var(--surface2); border-radius: 8px; padding: 12px;
+    margin-bottom: 8px; border: 1px solid var(--border);
+    cursor: grab; transition: .2s;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card .tag {
+    display: inline-block; font-size: 10px; padding: 2px 8px;
+    border-radius: 999px; margin-bottom: 6px; font-weight: 600;
+  }
+  .tag-m { background: var(--green); color: #000; }
+  .tag-s { background: var(--accent); color: #000; }
+  .tag-c { background: var(--amber); color: #000; }
+  .tag-w { background: var(--red); color: #fff; }
+  .tag-civ { background: #6366f1; color: #fff; }
+  .tag-tech { background: #06b6d4; color: #000; }
+  .tag-ux { background: #ec4899; color: #fff; }
+  .tag-sec { background: #f97316; color: #000; }
+
+  .card .title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .card .desc { font-size: 11px; color: var(--text2); margin-bottom: 8px; }
+  .card .footer { display: flex; justify-content: space-between; font-size: 10px; color: var(--text2); }
+
+  .roadmap { display: flex; flex-direction: column; gap: 16px; }
+  .milestone {
+    background: var(--surface); border-radius: 12px; padding: 20px;
+    border: 1px solid var(--border); border-left: 4px solid var(--accent);
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+  }
+  .milestone .left .date { font-size: 12px; color: var(--text2); }
+  .milestone .left h3 { font-size: 16px; }
+  .milestone .left p { font-size: 13px; color: var(--text2); }
+  .milestone .badge {
+    padding: 6px 16px; border-radius: 999px; font-size: 12px; font-weight: 600;
+  }
+  .badge-done { background: var(--green); color: #000; }
+  .badge-current { background: var(--amber); color: #000; }
+  .badge-pending { background: var(--surface2); color: var(--text2); }
+
+  .log-entry {
+    background: var(--surface); border-radius: 8px; padding: 12px 16px;
+    margin-bottom: 8px; border: 1px solid var(--border);
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .log-entry .icon { font-size: 18px; }
+  .log-entry .content .date { font-size: 11px; color: var(--text2); }
+  .log-entry .content .text { font-size: 13px; margin-top: 2px; }
+
+  .empty-state {
+    text-align: center; padding: 40px 20px; color: var(--text2);
+    font-size: 13px;
+  }
+
+  .add-btn {
+    width: 100%; padding: 8px; margin-top: 8px; border-radius: 8px;
+    border: 1px dashed var(--border); background: transparent;
+    color: var(--text2); cursor: pointer; font-size: 12px; transition: .2s;
+  }
+  .add-btn:hover { background: var(--surface2); border-color: var(--accent); color: var(--accent); }
+
+  @media (max-width: 768px) {
+    body { padding: 12px; }
+    .board { flex-direction: column; }
+    .column { min-width: unset; max-width: unset; }
+  }
+
+  /* modal */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6);
+    align-items: center; justify-content: center; z-index: 100;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border-radius: 16px; padding: 32px;
+    width: 90%; max-width: 480px; border: 1px solid var(--border);
+  }
+  .modal h2 { margin-bottom: 16px; font-size: 18px; }
+  .modal label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 4px; }
+  .modal input, .modal select, .modal textarea {
+    width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-size: 13px;
+    margin-bottom: 12px;
+  }
+  .modal textarea { min-height: 80px; resize: vertical; }
+  .modal .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
+  .modal .actions button {
+    padding: 10px 24px; border-radius: 8px; border: none; font-size: 13px;
+    font-weight: 600; cursor: pointer;
+  }
+  .modal .actions .btn-primary { background: var(--accent); color: #000; }
+  .modal .actions .btn-secondary { background: var(--surface2); color: var(--text); }
+
+  .select-wrapper { position: relative; }
+  .select-wrapper select { appearance: auto; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>LARY AI <span>—</span> Painel de Acompanhamento</h1>
+    <div class="meta">
+      <span>Status: <strong id="statusDisplay">Concepção</strong></span>
+      <span>Maturidade: <strong>1/5</strong></span>
+      <span>Data: <strong id="todayDate"></strong></span>
+    </div>
+  </div>
+  <div class="meta">
+    <span>Orçamento: <strong>R$ 120k</strong></span>
+    <span>Prazo: <strong>90 dias</strong></span>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat-card"><div class="value" id="statTotal">0</div><div class="label">Total Itens</div></div>
+  <div class="stat-card"><div class="value" id="statDone">0</div><div class="label">Concluídos</div></div>
+  <div class="stat-card"><div class="value" id="statProgress">0</div><div class="label">Em Andamento</div></div>
+  <div class="stat-card"><div class="value" id="statProgressPct">0%</div><div class="label">Progresso</div></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="kanban">Kanban</div>
+  <div class="tab" data-tab="roadmap">Roadmap</div>
+  <div class="tab" data-tab="decisions">Decisões</div>
+  <div class="tab" data-tab="risks">Riscos</div>
+  <div class="tab" data-tab="docs">Docs</div>
+</div>
+
+<!-- KANBAN -->
+<div class="panel active" id="panel-kanban">
+  <div class="board" id="kanbanBoard"></div>
+</div>
+
+<!-- ROADMAP -->
+<div class="panel" id="panel-roadmap">
+  <div class="roadmap" id="roadmapList"></div>
+</div>
+
+<!-- DECISIONS -->
+<div class="panel" id="panel-decisions">
+  <div id="decisionLog"></div>
+  <button class="add-btn" onclick="openModal('decision')">+ Registrar decisão</button>
+</div>
+
+<!-- RISKS -->
+<div class="panel" id="panel-risks">
+  <div id="riskList"></div>
+  <button class="add-btn" onclick="openModal('risk')">+ Registrar risco</button>
+</div>
+
+<!-- DOCS -->
+<div class="panel" id="panel-docs">
+  <div class="roadmap" style="display:flex;flex-direction:column;gap:8px;">
+    <a href="../../specs/requisitos-funcionais.md" target="_blank" class="milestone" style="text-decoration:none;color:inherit;display:flex;">
+      <div class="left"><h3>📄 Requisitos Funcionais</h3><p>Documento de requisitos v0.1</p></div>
+      <span class="badge badge-done">Pronto</span>
+    </a>
+    <a href="javascript:void(0)" class="milestone" style="text-decoration:none;color:inherit;display:flex;opacity:.6;">
+      <div class="left"><h3>📐 Arquitetura Técnica</h3><p>Stack: React Native + Node.js + PostgreSQL + Supabase</p></div>
+      <span class="badge badge-pending">Pendente</span>
+    </a>
+    <a href="javascript:void(0)" class="milestone" style="text-decoration:none;color:inherit;display:flex;opacity:.6;">
+      <div class="left"><h3>🎨 Protótipo Figma</h3><p>MVP — 5 histórias: RDO + aprovação + PDF + exportação</p></div>
+      <span class="badge badge-pending">Pendente</span>
+    </a>
+    <a href="javascript:void(0)" class="milestone" style="text-decoration:none;color:inherit;display:flex;opacity:.6;">
+      <div class="left"><h3>📋 PRD v1</h3><p>Product Requirements Document consolidado</p></div>
+      <span class="badge badge-pending">Pendente</span>
+    </a>
+    <a href="javascript:void(0)" class="milestone" style="text-decoration:none;color:inherit;display:flex;opacity:.6;">
+      <div class="left"><h3>📊 Dashboard de Completeza</h3><p>Métrica de qualidade da migração de dados</p></div>
+      <span class="badge badge-pending">Pendente</span>
+    </a>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2 id="modalTitle">Novo Item</h2>
+    <form id="modalForm" onsubmit="saveModal(event)">
+      <input type="hidden" id="modalType">
+      <input type="hidden" id="modalId">
+      <div id="modalFields"></div>
+      <div class="actions">
+        <button type="button" class="btn-secondary" onclick="closeModal()">Cancelar</button>
+        <button type="submit" class="btn-primary">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'laryai_tracker';
+
+let data = loadData();
+
+function defaultData() {
+  return {
+    cards: [
+      { id: 'c1', title: 'Mestre registra apontamento (foto + texto, offline)', desc: 'Captura de dados de campo sem internet, com geolocalização e fotografia', col: 'backlog', tag: 'm', cat: 'ux', priority: 1 },
+      { id: 'c2', title: 'IA extrai metadados e sugere complementos', desc: 'NLP para extrair serviços, equipe, clima, ocorrências do texto e foto', col: 'backlog', tag: 'm', cat: 'tech', priority: 2 },
+      { id: 'c3', title: 'Engenheiro revisa, ajusta e aprova o RDO', desc: 'Interface de revisão com campos editáveis e confirmação explícita', col: 'backlog', tag: 'm', cat: 'ux', priority: 3 },
+      { id: 'c4', title: 'Sistema gera RDO PDF com hash + audit trail', desc: 'PDF com timestamp, hash de integridade e trilha de auditoria imutável', col: 'backlog', tag: 'm', cat: 'sec', priority: 4 },
+      { id: 'c5', title: 'Exportação CSV para alimentar sistemas legados', desc: 'Exportação estruturada para ERP, planilhas e sistemas de planejamento', col: 'backlog', tag: 'm', cat: 'tech', priority: 5 },
+      { id: 'c6', title: 'Confiança estimada em campos da IA (<85% obriga revisão)', desc: 'Todo campo preenchido pela IA exibe score de confiança', col: 'backlog', tag: 's', cat: 'tech', priority: 6 },
+      { id: 'c7', title: 'Script de importação CSV de planilhas legadas', desc: 'Migração do caos: importa modelos antigos com validação', col: 'backlog', tag: 's', cat: 'civ', priority: 7 },
+      { id: 'c8', title: 'Período de dupla escritura (30 dias)', desc: 'Sistema e papel rodam em paralelo durante migração', col: 'backlog', tag: 's', cat: 'civ', priority: 8 },
+      { id: 'c9', title: 'Dashboard de completeza dos dados migrados', desc: 'Métrica visual de qualidade da migração por obra', col: 'backlog', tag: 's', cat: 'ux', priority: 9 },
+      { id: 'c10', title: 'Autenticação MFA + RBAC', desc: 'Login com 2 fatores e controle de acesso por perfil', col: 'backlog', tag: 'm', cat: 'sec', priority: 10 },
+    ],
+    milestones: [
+      { id: 'm1', title: 'MVP — RDO Básico (5 histórias)', date: 'Semana 2-6', desc: 'Apontamento offline + IA + revisão + PDF + CSV', status: 'current' },
+      { id: 'm2', title: 'Validação com 3 clientes reais', date: 'Semana 1', desc: 'Mestre, engenheiro, diretor — protótipo Figma', status: 'current' },
+      { id: 'm3', title: 'Migração assistida — dupla escritura', date: 'Semana 6-10', desc: 'Importação de legados + 30 dias de paralelo', status: 'pending' },
+      { id: 'm4', title: 'Bateria de segurança e auditoria', date: 'Semana 8-10', desc: 'Audit trail, MFA, LGPD, testes de penetração', status: 'pending' },
+      { id: 'm5', title: 'Lançamento comercial — v1.0', date: 'Semana 12', desc: 'Primeiro cliente pagante — R$ 990/obra/mês', status: 'pending' },
+    ],
+    decisions: [
+      { id: 'd1', date: '2026-06-13', text: 'Corte cirúrgico do MVP: 11 → 5 histórias. Removido diário completo, NCR workflow, voz e integração ERP direta.', icon: '🔪' },
+      { id: 'd2', date: '2026-06-13', text: 'Stack definida: React Native + WatermelonDB + Node.js + PostgreSQL/TimescaleDB + Supabase + GPT-4o mini.', icon: '📐' },
+      { id: 'd3', date: '2026-06-13', text: 'Precificação: R$ 990/obra/mês (5 usuários), promocional R$ 490 nos 3 primeiros meses, mínimo 2 obras.', icon: '💰' },
+      { id: 'd4', date: '2026-06-13', text: 'Guardrail de IA: confiança estimada por campo. <85% = revisão obrigatória. >95% ainda exige clique de confirmação.', icon: '🛡️' },
+      { id: 'd5', date: '2026-06-13', text: 'Orçamento: R$ 120k bootstrapped. Equipe: 2 devs + 1 produto/IA/UX. Prazo: 90 dias.', icon: '📊' },
+    ],
+    risks: [
+      { id: 'r1', title: 'IA alucinar metragem e engenheiro confiar cegamente', prob: 'Alta', impact: 'Alto', mitigation: 'Confiança estimada + revisão obrigatória <85% + correções viram treino', status: 'active' },
+      { id: 'r2', title: 'Cliente não aceitar preço de R$ 990/obra', prob: 'Média', impact: 'Alto', mitigation: 'Testar disposição a pagar nas entrevistas semana 1; ajustar se necessário', status: 'active' },
+      { id: 'r3', title: 'Falha de sincronização offline sem o usuário perceber', prob: 'Média', impact: 'Médio', mitigation: 'Testes extensivos de sincronia + indicador visível de status do sync', status: 'active' },
+      { id: 'r4', title: 'Dados migrados inconsistentes gerarem retrabalho', prob: 'Alta', impact: 'Médio', mitigation: 'Dashboard de completeza + dupla escritura por 30 dias', status: 'active' },
+    ]
+  };
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      // merge with defaults to ensure new fields
+      const def = defaultData();
+      return {
+        cards: parsed.cards || def.cards,
+        milestones: parsed.milestones || def.milestones,
+        decisions: parsed.decisions || def.decisions,
+        risks: parsed.risks || def.risks,
+      };
+    }
+  } catch(e) { console.warn('Failed to load data, using defaults', e); }
+  return defaultData();
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  renderAll();
+}
+
+function renderAll() {
+  renderKanban();
+  renderRoadmap();
+  renderDecisions();
+  renderRisks();
+  renderStats();
+}
+
+function renderStats() {
+  const total = data.cards.length;
+  const done = data.cards.filter(c => c.col === 'done').length;
+  const progress = data.cards.filter(c => c.col === 'in-progress').length;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statDone').textContent = done;
+  document.getElementById('statProgress').textContent = progress;
+  document.getElementById('statProgressPct').textContent = total ? Math.round((done/total)*100) + '%' : '0%';
+}
+
+function tagLabel(t) {
+  const map = { m: 'Must', s: 'Should', c: 'Could', w: 'Won\'t' };
+  return map[t] || t;
+}
+
+function tagClass(t) {
+  return 'tag-' + t;
+}
+
+function catLabel(c) {
+  const map = { ux: 'UX', tech: 'Tecnologia', civ: 'Construção Civil', sec: 'Segurança' };
+  return map[c] || c;
+}
+
+function renderKanban() {
+  const cols = [
+    { id: 'backlog', label: '📋 Backlog MVP' },
+    { id: 'in-progress', label: '🔨 Em Andamento' },
+    { id: 'review', label: '👁️ Revisão' },
+    { id: 'done', label: '✅ Concluído' },
+  ];
+  const board = document.getElementById('kanbanBoard');
+  board.innerHTML = '';
+  cols.forEach(col => {
+    const cards = data.cards.filter(c => c.col === col.id)
+      .sort((a,b) => (a.priority||99) - (b.priority||99));
+    const div = document.createElement('div');
+    div.className = 'column';
+    div.innerHTML = `<h3>${col.label} <span class="count">${cards.length}</span></h3>`;
+    cards.forEach(card => {
+      const cdiv = document.createElement('div');
+      cdiv.className = 'card';
+      cdiv.draggable = true;
+      cdiv.dataset.id = card.id;
+      cdiv.innerHTML = `
+        <span class="tag ${tagClass(card.tag)}">${tagLabel(card.tag)}</span>
+        <span class="tag ${tagClass(card.cat || 'tech')}" style="background:var(--surface2);color:var(--text);margin-left:4px;">${catLabel(card.cat)}</span>
+        <div class="title">${card.title}</div>
+        <div class="desc">${card.desc || ''}</div>
+        <div class="footer">
+          <span>#${card.priority || '-'}</span>
+          <span style="cursor:pointer;color:var(--red);" onclick="deleteCard('${card.id}')">🗑️</span>
+        </div>
+      `;
+      cdiv.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', card.id);
+        cdiv.style.opacity = '.4';
+      });
+      cdiv.addEventListener('dragend', e => { cdiv.style.opacity = '1'; });
+      div.appendChild(cdiv);
+    });
+    // Drop zone
+    div.addEventListener('dragover', e => e.preventDefault());
+    div.addEventListener('drop', e => {
+      e.preventDefault();
+      const id = e.dataTransfer.getData('text/plain');
+      const card = data.cards.find(c => c.id === id);
+      if (card) { card.col = col.id; saveData(); }
+    });
+    // Add button for backlog
+    if (col.id === 'backlog') {
+      const btn = document.createElement('button');
+      btn.className = 'add-btn';
+      btn.textContent = '+ Adicionar item';
+      btn.onclick = () => openModal('card');
+      div.appendChild(btn);
+    }
+    board.appendChild(div);
+  });
+}
+
+function renderRoadmap() {
+  const list = document.getElementById('roadmapList');
+  list.innerHTML = data.milestones.map(m => `
+    <div class="milestone">
+      <div class="left">
+        <div class="date">${m.date}</div>
+        <h3>${m.title}</h3>
+        <p>${m.desc}</p>
+      </div>
+      <span class="badge badge-${m.status}">${m.status === 'done' ? '✅' : m.status === 'current' ? '🔄' : '⏳'} ${m.status === 'done' ? 'Concluído' : m.status === 'current' ? 'Em Andamento' : 'Pendente'}</span>
+    </div>
+  `).join('');
+}
+
+function renderDecisions() {
+  const div = document.getElementById('decisionLog');
+  div.innerHTML = data.decisions.map(d => `
+    <div class="log-entry">
+      <div class="icon">${d.icon || '📌'}</div>
+      <div class="content">
+        <div class="date">${d.date}</div>
+        <div class="text">${d.text}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderRisks() {
+  const div = document.getElementById('riskList');
+  div.innerHTML = data.risks.map(r => `
+    <div class="log-entry" style="border-left:4px solid ${r.impact === 'Alto' ? 'var(--red)' : r.impact === 'Médio' ? 'var(--amber)' : 'var(--green)'}">
+      <div class="content" style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+          <strong style="font-size:14px;">${r.title}</strong>
+          <div style="display:flex;gap:8px;font-size:11px;">
+            <span class="tag ${r.prob === 'Alta' ? 'tag-m' : r.prob === 'Média' ? 'tag-s' : 'tag-c'}">${r.prob}</span>
+            <span class="tag ${r.impact === 'Alto' ? 'tag-m' : r.impact === 'Médio' ? 'tag-s' : 'tag-c'}">${r.impact}</span>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--text2);margin-top:6px;">
+          <strong>Mitigação:</strong> ${r.mitigation}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Modal
+function openModal(type, id) {
+  document.getElementById('modalType').value = type;
+  document.getElementById('modalId').value = id || '';
+  document.getElementById('modalOverlay').classList.add('open');
+
+  const fields = document.getElementById('modalFields');
+  const title = document.getElementById('modalTitle');
+
+  if (type === 'card') {
+    title.textContent = id ? 'Editar Item' : 'Novo Item no Backlog';
+    const existing = id ? data.cards.find(c => c.id === id) : null;
+    fields.innerHTML = `
+      <label>Título</label>
+      <input type="text" id="f-title" value="${existing ? existing.title : ''}" required>
+      <label>Descrição</label>
+      <textarea id="f-desc">${existing ? existing.desc || '' : ''}</textarea>
+      <label>Prioridade (MoSCoW)</label>
+      <select id="f-tag">
+        <option value="m" ${existing && existing.tag === 'm' ? 'selected' : ''}>Must Have</option>
+        <option value="s" ${existing && existing.tag === 's' ? 'selected' : ''}>Should Have</option>
+        <option value="c" ${existing && existing.tag === 'c' ? 'selected' : ''}>Could Have</option>
+        <option value="w" ${existing && existing.tag === 'w' ? 'selected' : ''}>Won't Have</option>
+      </select>
+      <label>Categoria</label>
+      <select id="f-cat">
+        <option value="civ" ${existing && existing.cat === 'civ' ? 'selected' : ''}>Construção Civil</option>
+        <option value="tech" ${existing && existing.cat === 'tech' ? 'selected' : ''}>Tecnologia</option>
+        <option value="ux" ${existing && existing.cat === 'ux' ? 'selected' : ''}>UX</option>
+        <option value="sec" ${existing && existing.cat === 'sec' ? 'selected' : ''}>Segurança</option>
+      </select>
+      <label>Prioridade (ordem)</label>
+      <input type="number" id="f-priority" value="${existing ? existing.priority || 99 : data.cards.length + 1}">
+    `;
+  } else if (type === 'decision') {
+    title.textContent = 'Registrar Decisão';
+    fields.innerHTML = `
+      <label>Data</label>
+      <input type="date" id="f-date" value="${new Date().toISOString().slice(0,10)}">
+      <label>Ícone (emoji)</label>
+      <input type="text" id="f-icon" value="📌">
+      <label>Decisão</label>
+      <textarea id="f-text" required></textarea>
+    `;
+  } else if (type === 'risk') {
+    title.textContent = 'Registrar Risco';
+    fields.innerHTML = `
+      <label>Título do Risco</label>
+      <input type="text" id="f-title" required>
+      <label>Probabilidade</label>
+      <select id="f-prob">
+        <option value="Alta">Alta</option>
+        <option value="Média">Média</option>
+        <option value="Baixa">Baixa</option>
+      </select>
+      <label>Impacto</label>
+      <select id="f-impact">
+        <option value="Alto">Alto</option>
+        <option value="Médio">Médio</option>
+        <option value="Baixo">Baixo</option>
+      </select>
+      <label>Estratégia de Mitigação</label>
+      <textarea id="f-mitigation" required></textarea>
+    `;
+  }
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function saveModal(e) {
+  e.preventDefault();
+  const type = document.getElementById('modalType').value;
+  const id = document.getElementById('modalId').value;
+  const editId = id || Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+
+  if (type === 'card') {
+    const existing = data.cards.find(c => c.id === editId);
+    if (existing) {
+      existing.title = document.getElementById('f-title').value;
+      existing.desc = document.getElementById('f-desc').value;
+      existing.tag = document.getElementById('f-tag').value;
+      existing.cat = document.getElementById('f-cat').value;
+      existing.priority = parseInt(document.getElementById('f-priority').value) || 99;
+    } else {
+      data.cards.push({
+        id: editId,
+        title: document.getElementById('f-title').value,
+        desc: document.getElementById('f-desc').value,
+        tag: document.getElementById('f-tag').value,
+        cat: document.getElementById('f-cat').value,
+        priority: parseInt(document.getElementById('f-priority').value) || 99,
+        col: 'backlog',
+      });
+    }
+  } else if (type === 'decision') {
+    data.decisions.unshift({
+      id: editId,
+      date: document.getElementById('f-date').value,
+      icon: document.getElementById('f-icon').value || '📌',
+      text: document.getElementById('f-text').value,
+    });
+  } else if (type === 'risk') {
+    data.risks.push({
+      id: editId,
+      title: document.getElementById('f-title').value,
+      prob: document.getElementById('f-prob').value,
+      impact: document.getElementById('f-impact').value,
+      mitigation: document.getElementById('f-mitigation').value,
+      status: 'active',
+    });
+  }
+
+  saveData();
+  closeModal();
+}
+
+function deleteCard(id) {
+  if (!confirm('Remover este item?')) return;
+  data.cards = data.cards.filter(c => c.id !== id);
+  saveData();
+}
+
+// Tabs
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// Init
+document.getElementById('todayDate').textContent = new Date().toLocaleDateString('pt-BR');
+renderAll();
+</script>
+</body>
+</html>

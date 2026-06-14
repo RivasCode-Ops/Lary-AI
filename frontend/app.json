@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "LARY AI",
+    "slug": "lary-ai",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#0f172a"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "ai.lary.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "A LARY AI usa a câmera para registrar fotos do RDO",
+        "NSMicrophoneUsageDescription": "A LARY AI usa o microfone para anotações por voz",
+        "NSLocationWhenInUseUsageDescription": "A LARY AI usa localização para georreferenciar fotos"
+      }
+    },
+    "android": {
+      "package": "ai.lary.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0f172a"
+      },
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
+    },
+    "plugins": [
+      "expo-camera",
+      "expo-location",
+      "expo-av"
+    ],
+    "extra": {
+      "apiUrl": "https://lary-ai-backend.onrender.com"
+    }
+  }
+}

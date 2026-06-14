@@ -1,0 +1,43 @@
+lary-ai/
+├── backend/
+│   ├── src/
+│   │   ├── routes/
+│   │   │   ├── auth.ts      (login, register, me)
+│   │   │   └── rdo.ts       (CRUD, approve, pdf, csv)
+│   │   ├── middleware/
+│   │   │   └── auth.ts      (JWT verify)
+│   │   ├── ai/
+│   │   │   └── extract.ts   (OpenAI + confiança)
+│   │   └── db/
+│   │       ├── init.sql     (8 tabelas)
+│   │       └── seed.ts      (dados de teste)
+│   ├── Dockerfile.prod
+│   └── package.json
+│
+├── frontend/
+│   ├── src/
+│   │   ├── services/
+│   │   │   ├── api.ts       (axios + token interceptor)
+│   │   │   └── auth.tsx     (AuthProvider + logout)
+│   │   ├── screens/
+│   │   │   ├── LoginScreen.tsx
+│   │   │   ├── ApontarScreen.tsx
+│   │   │   ├── IAProcessingScreen.tsx
+│   │   │   ├── RevisarScreen.tsx
+│   │   │   ├── PDFScreen.tsx
+│   │   │   ├── ExportarScreen.tsx
+│   │   │   └── SyncQueueScreen.tsx
+│   │   └── hooks/
+│   │       └── useOfflineSync.ts
+│   ├── App.tsx              (LogoutButton no header)
+│   ├── app.json             (permissoes: camera, microfone, GPS)
+│   └── package.json
+│
+├── tests/
+│   └── acceptance/
+│       └── rdo.spec.ts      (1 test passed ✅)
+│
+└── docs/
+    ├── dashboard/
+    ├── prototipo-mvp/
+    └── validacao/

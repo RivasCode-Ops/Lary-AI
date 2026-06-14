@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Roteiro de Validação — LARY AI</title>
+<style>
+  @page { margin: 12mm 16mm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: #1e293b;
+    line-height: 1.6;
+    padding: 40px;
+    max-width: 210mm;
+    margin: 0 auto;
+  }
+  h1 { font-size: 24px; margin-bottom: 4px; }
+  h1 span { color: #0284c7; }
+  .subtitle { color: #64748b; margin-bottom: 24px; font-size: 14px; }
+  .meta { display: flex; gap: 24px; font-size: 12px; color: #64748b; margin-bottom: 32px; }
+  .meta strong { color: #1e293b; }
+
+  h2 { font-size: 16px; margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 2px solid #e2e8f0; }
+  h3 { font-size: 14px; margin: 16px 0 8px; color: #334155; }
+
+  .persona {
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    page-break-inside: avoid;
+  }
+  .persona-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .persona-name { font-size: 18px; font-weight: 700; }
+  .persona-time { font-size: 12px; background: #f1f5f9; padding: 4px 12px; border-radius: 999px; font-weight: 600; }
+  .persona-icon { font-size: 32px; margin-right: 12px; }
+
+  .questions { list-style: none; }
+  .questions li {
+    padding: 8px 0 8px 28px;
+    position: relative;
+    font-size: 13px;
+    border-bottom: 1px dashed #f1f5f9;
+  }
+  .questions li::before {
+    content: '•';
+    position: absolute;
+    left: 8px;
+    color: #0284c7;
+    font-weight: 700;
+  }
+  .questions li.obrigatoria::before { content: '★'; color: #dc2626; }
+  .questions li.obrigatoria { font-weight: 600; }
+
+  .space-after { margin-bottom: 8px; }
+
+  .checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
+  .checklist-item { font-size: 12px; display: flex; align-items: center; gap: 8px; }
+  .checklist-item input { width: 16px; height: 16px; }
+
+  .notes-box {
+    width: 100%;
+    min-height: 60px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    font-family: inherit;
+    font-size: 12px;
+    margin-top: 8px;
+    resize: vertical;
+  }
+
+  .tag { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+  .tag-red { background: #fee2e2; color: #dc2626; }
+  .tag-amber { background: #fef3c7; color: #92400e; }
+  .tag-green { background: #dcfce7; color: #16a34a; }
+
+  .tip-box {
+    background: #f0f9ff;
+    border-left: 3px solid #0284c7;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 13px;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .section-break { margin-top: 32px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 8px 0; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+  th { background: #f8fafc; font-weight: 600; }
+
+  @media print {
+    body { padding: 0; }
+    .persona { break-inside: avoid; }
+    .no-print { display: none; }
+  }
+
+  .btn-print {
+    display: inline-block;
+    padding: 10px 24px;
+    background: #0284c7;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 24px;
+  }
+  .btn-print:hover { background: #0369a1; }
+  .no-print { margin-bottom: 16px; }
+</style>
+</head>
+<body>
+
+<div class="no-print">
+  <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+</div>
+
+<h1>LARY <span>AI</span></h1>
+<div class="subtitle">Roteiro de Validação com Clientes — MVP v0.1</div>
+
+<div class="meta">
+  <span>Preparado por: <strong>CIVIL AI PRODUCT ARCHITECT</strong></span>
+  <span>Data: <strong>13/06/2026</strong></span>
+  <span>Duração total: <strong>~80 min por visita</strong></span>
+</div>
+
+<div class="tip-box">
+  <strong>🎯 Regra de ouro:</strong> Não explique o protótipo. Entregue o celular e peça "O que você faria aqui?". 
+  A reação inicial vale mais que qualquer resposta.
+</div>
+
+<!-- ===== PREPARAÇÃO ===== -->
+<h2>⬜ Preparação (15 min antes da visita)</h2>
+
+<table>
+  <tr><th style="width:24px">✔</th><th>Item</th><th>Feito</th></tr>
+  <tr><td>⬜</td><td>Celular com protótipo aberto na Tela 1</td><td style="width:60px">___/___</td></tr>
+  <tr><td>⬜</td><td>Papel e caneta (não confie só na memória)</td><td>___/___</td></tr>
+  <tr><td>⬜</td><td>Gravador de áudio (com permissão do entrevistado)</td><td>___/___</td></tr>
+  <tr><td>⬜</td><td>Cronômetro para medir tempo de cada etapa</td><td>___/___</td></tr>
+  <tr><td>⬜</td><td>Este roteiro impresso + 1 folha extra de anotações</td><td>___/___</td></tr>
+</table>
+
+<!-- ===== PERFIL ===== -->
+<h2>⬜ Perfil do Entrevistado</h2>
+
+<table>
+  <tr><td><strong>Nome:</strong></td><td>________________________________________</td></tr>
+  <tr><td><strong>Cargo:</strong></td><td>________________________________________</td></tr>
+  <tr><td><strong>Obra atual:</strong></td><td>________________________________________</td></tr>
+  <tr><td><strong>Tempo na construção:</strong></td><td>________ anos</td></tr>
+  <tr><td><strong>Usa smartphone no trabalho?</strong></td><td>⬜ Sim  ⬜ Não  ⬜ As vezes</td></tr>
+  <tr><td><strong>Já usou algum app de obra?</strong></td><td>⬜ Sim: _______________  ⬜ Não</td></tr>
+</table>
+
+<!-- ===== MESTRE DE OBRAS ===== -->
+<div class="section-break"></div>
+<h2>⬜ Entrevista 1: MESTRE DE OBRAS (30 min)</h2>
+
+<div class="persona">
+  <div class="persona-header">
+    <div style="display:flex;align-items:center;">
+      <span class="persona-icon">👷</span>
+      <div>
+        <div class="persona-name">Mestre de Obras</div>
+        <div style="font-size:12px;color:#64748b;">Operação — quem registra o RDO hoje</div>
+      </div>
+    </div>
+    <span class="persona-time">⏱ 30 min</span>
+  </div>
+
+  <h3>📱 Teste cego (5 min) — não explicar nada</h3>
+  <ol class="questions">
+    <li class="obrigatoria">"O que você faria primeiro aqui?" [entregar celular]</li>
+    <li>"Mostra pra mim onde você apertaria com a mão suja/luva" [observar se busca botão grande]</li>
+    <li class="obrigatoria">"O que você faria se a internet cair agora?" [testar percepção do offline]</li>
+  </ol>
+
+  <h3>💬 Perguntas abertas (15 min)</h3>
+  <ol class="questions">
+    <li class="obrigatoria">"Quanto tempo você gasta por dia preenchendo RDO hoje?"</li>
+    <li>"O que é mais chato de preencher?"</li>
+    <li class="obrigatoria">"Você confiaria que a foto foi anexada mesmo sem aparecer na tela?"</li>
+    <li>"Quantas fotos você tira por dia na obra?"</li>
+    <li>"O que você faria se precisasse anexar 3 fotos em vez de 1?"</li>
+    <li>"Você prefere digitar ou falar? Por quê?"</li>
+  </ol>
+
+  <h3>🔟 Teste de usabilidade (10 min)</h3>
+  <p style="font-size:13px;margin-bottom:8px;">Peça para ele executar sem ajuda:</p>
+  <div class="checklist">
+    <label class="checklist-item"><input type="checkbox"> Selecionar o serviço</label>
+    <label class="checklist-item"><input type="checkbox"> Digitar ocorrência</label>
+    <label class="checklist-item"><input type="checkbox"> Tirar foto</label>
+    <label class="checklist-item"><input type="checkbox"> Salvar apontamento</label>
+  </div>
+
+  <p style="font-size:12px;margin-top:8px;color:#64748b;">
+    🕐 Tempo total da tarefa: ______ segundos &nbsp;|&nbsp; Ajuda necessária? ⬜ Sim ⬜ Não
+  </p>
+
+  <h3>📝 Anotações</h3>
+  <textarea class="notes-box" placeholder="O que ele disse que te surpreendeu? Onde ele travou? O que ele pediu que não está no protótipo?"></textarea>
+</div>
+
+<!-- ===== ENGENHEIRO RESIDENTE ===== -->
+<div class="section-break"></div>
+<h2>⬜ Entrevista 2: ENGENHEIRO RESIDENTE (30 min)</h2>
+
+<div class="persona">
+  <div class="persona-header">
+    <div style="display:flex;align-items:center;">
+      <span class="persona-icon">👷‍♂️</span>
+      <div>
+        <div class="persona-name">Engenheiro Residente</div>
+        <div style="font-size:12px;color:#64748b;">Supervisão — quem revisa e aprova o RDO</div>
+      </div>
+    </div>
+    <span class="persona-time">⏱ 30 min</span>
+  </div>
+
+  <h3>📱 Teste cego (5 min)</h3>
+  <ol class="questions">
+    <li class="obrigatoria">"Você aprovaria esse RDO com base nesses dados?" [mostrar Tela 3]</li>
+    <li>"Role a tela. Algo te incomoda?"</li>
+  </ol>
+
+  <h3>💬 Perguntas sobre IA e confiança (10 min)</h3>
+  <ol class="questions">
+    <li class="obrigatoria">"Você confiaria na metragem que a IA sugeriu com 68% de confiança?"</li>
+    <li>"O alerta de 72% é útil ou atrapalha seu fluxo?"</li>
+    <li class="obrigatoria">"Você prefere esse clique obrigatório de aprovação ou um 'aprovar tudo' com risco de erro?"</li>
+  </ol>
+
+  <h3>💬 Perguntas sobre auditoria (10 min)</h3>
+  <ol class="questions">
+    <li class="obrigatoria">"Se um fiscal questionar esse RDO, esse hash + trilha resolvem?"</li>
+    <li>"O que falta para você confiar 100% na metragem estimada pela IA?"</li>
+    <li>"Você quer receber notificação quando o RDO chegar para revisão?"</li>
+  </ol>
+
+  <h3>🔟 Teste de aprovação (5 min)</h3>
+  <p style="font-size:13px;margin-bottom:8px;">Peça para aprovar o RDO:</p>
+  <div class="checklist">
+    <label class="checklist-item"><input type="checkbox"> Identificou os alertas</label>
+    <label class="checklist-item"><input type="checkbox"> Marcou checkbox de verificação</label>
+    <label class="checklist-item"><input type="checkbox"> Clicou em "Aprovar"</label>
+  </div>
+
+  <p style="font-size:12px;margin-top:8px;color:#64748b;">
+    🕐 Tempo total: ______ segundos &nbsp;|&nbsp; Leu os alertas ou clicou direto? ⬜ Leu ⬜ Direto
+  </p>
+
+  <h3>📝 Anotações</h3>
+  <textarea class="notes-box" placeholder="Ele pediu mais campos? Menos cliques? O alerta de IA foi visto ou ignorado?"></textarea>
+</div>
+
+<!-- ===== DIRETOR ===== -->
+<div class="section-break"></div>
+<h2>⬜ Entrevista 3: DIRETOR DA CONSTRUTORA (20 min)</h2>
+
+<div class="persona">
+  <div class="persona-header">
+    <div style="display:flex;align-items:center;">
+      <span class="persona-icon">🏢</span>
+      <div>
+        <div class="persona-name">Diretor / Sócio</div>
+        <div style="font-size:12px;color:#64748b;">Quem paga — decisão de compra</div>
+      </div>
+    </div>
+    <span class="persona-time">⏱ 20 min</span>
+  </div>
+
+  <h3>📊 Demonstração rápida (5 min)</h3>
+  <ol class="questions">
+    <li>Mostrar as 5 telas em sequência (não testar, só apresentar)</li>
+    <li class="obrigatoria">Enfatizar a Tela 5: "Tempo médio de RDO caiu de 4h para 6 min"</li>
+  </ol>
+
+  <h3>💰 Perguntas de precificação (10 min)</h3>
+  <ol class="questions">
+    <li class="obrigatoria">"Se isso existisse amanhã, você pagaria R$ 990/mês por obra (5 usuários)?"</li>
+    <li class="obrigatoria">"Qual o valor máximo que você pagaria por mês?"</li>
+    <li>"Você contrataria para 1 obra primeiro ou já fecharia pacote?"</li>
+    <li>"O que te impede de assinar agora?"</li>
+  </ol>
+
+  <div class="tip-box">
+    <strong>💡 Técnica de precificação:</strong> Se ele disser "é caro", pergunte "quanto você paga hoje por mês 
+    para fazer RDO manual?". Se ele não souber, mostre: 50 RDOs × R$ 340 = R$ 17.000/mês de custo oculto.
+  </div>
+
+  <h3>📋 Fechamento (5 min)</h3>
+  <ol class="questions">
+    <li>"Qual funcionalidade faria você assinar amanhã?"</li>
+    <li>"Se eu voltar semana que vem com isso ajustado, você topa um piloto gratuito de 30 dias?"</li>
+  </ol>
+
+  <h3>📝 Anotações</h3>
+  <textarea class="notes-box" placeholder="Ele hesitou? Pediu desconto por volume? Qual o verdadeiro obstáculo? Citou concorrente?"></textarea>
+</div>
+
+<!-- ===== PÓS-VISITA ===== -->
+<div class="section-break"></div>
+<h2>⬜ Pós-Visita (15 min, fazer antes da próxima visita)</h2>
+
+<h3>📊 Resumo rápido</h3>
+<table>
+  <tr><th>Métrica</th><th>Valor</th></tr>
+  <tr><td>Mestre conseguiu usar sem ajuda?</td><td>⬜ Sim ⬜ Não ⬜ Parcial</td></tr>
+  <tr><td>Engenheiro aprovaria o RDO hoje?</td><td>⬜ Sim ⬜ Não ⬜ Com ressalvas</td></tr>
+  <tr><td>Diretor pagaria R$ 990/obra?</td><td>⬜ Sim ⬜ Não ⬜ Só se for R$ ______</td></tr>
+  <tr><td>NPS (recomendaria a um amigo?)?</td><td>0 — 1 — 2 — 3 — 4 — 5 — 6 — 7 — 8 — 9 — 10</td></tr>
+</table>
+
+<h3>🏠 Decisões pós-visita (registrar no Kanban)</h3>
+<p style="font-size:13px;color:#64748b;">
+  Ao voltar para o escritório, abra <code>docs/dashboard/index.html</code> e:
+</p>
+<ol class="questions">
+  <li><strong>Adicione cards no backlog</strong> com funcionalidades que TODOS pediram</li>
+  <li><strong>Atualize riscos</strong> com objeções que apareceram</li>
+  <li><strong>Registre decisão</strong> se precisar cortar ou adicionar algo no MVP</li>
+</ol>
+
+<h3>📌 Checklist de saída</h3>
+<div class="checklist" style="grid-template-columns:1fr;">
+  <label class="checklist-item"><input type="checkbox"> Anotações digitalizadas (foto do papel ou transcritas)</label>
+  <label class="checklist-item"><input type="checkbox"> Áudio salvo com nome do entrevistado + data</label>
+  <label class="checklist-item"><input type="checkbox"> Card adicionado no Kanban para cada feedback relevante</label>
+  <label class="checklist-item"><input type="checkbox"> Risco novo registrado na aba Riscos</label>
+  <label class="checklist-item"><input type="checkbox"> Próxima visita agendada (mínimo 3 clientes no total)</label>
+</div>
+
+<div class="section-break"></div>
+<div style="text-align:center;font-size:12px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:16px;margin-top:16px;">
+  LARY AI — Roteiro de Validação v1.0<br>
+  Gerado pelo CIVIL AI PRODUCT ARCHITECT em 13/06/2026
+</div>
+
+</body>
+</html>

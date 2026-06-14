@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LARY AI — Guia de Deploy & Piloto</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --accent: #38bdf8;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --code-bg: #334155;
+    --border: #334155;
+  }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  .container { max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  /* Header */
+  header { text-align: center; padding: 3rem 0 2rem; }
+  header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p { color: var(--muted); margin-top: 0.5rem; font-size: 1.05rem; }
+
+  /* Sections */
+  section { margin-bottom: 2.5rem; }
+  .section-title {
+    display: flex; align-items: center; gap: 0.75rem;
+    font-size: 1.3rem; font-weight: 700; margin-bottom: 1.25rem;
+  }
+  .section-title .step-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 2rem; height: 2rem; border-radius: 50%;
+    background: var(--accent); color: #0f172a;
+    font-size: 0.85rem; font-weight: 800; flex-shrink: 0;
+  }
+  .section-title .step-num.passo { background: var(--accent); color: #0f172a; }
+
+  /* Cards */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .card:last-child { margin-bottom: 0; }
+  .card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent); }
+  .card p, .card li { color: var(--muted); font-size: 0.925rem; }
+  .card ul, .card ol { padding-left: 1.25rem; }
+  .card li { margin-bottom: 0.35rem; }
+
+  /* Checklist */
+  .checklist { list-style: none; padding: 0; }
+  .checklist li {
+    display: flex; align-items: flex-start; gap: 0.6rem;
+    padding: 0.6rem 0; border-bottom: 1px solid var(--border);
+    font-size: 0.95rem; color: var(--text);
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before {
+    content: "\2610"; font-size: 1.2rem; color: var(--accent);
+    flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* Code blocks */
+  code {
+    font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", Consolas, monospace;
+    font-size: 0.825rem;
+  }
+  .code-block {
+    background: var(--code-bg); color: #e2e8f0;
+    padding: 0.75rem 1rem; border-radius: 8px;
+    margin: 0.75rem 0; overflow-x: auto;
+    font-size: 0.825rem; line-height: 1.55;
+    border: 1px solid var(--border);
+  }
+  .code-block .prompt { color: #34d399; user-select: none; }
+  .code-block .comment { color: #64748b; font-style: italic; }
+
+  /* Inline code */
+  .inline-code {
+    background: var(--code-bg); color: var(--accent);
+    padding: 0.15em 0.45em; border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* Env vars table */
+  .env-table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; font-size: 0.85rem; }
+  .env-table th, .env-table td {
+    text-align: left; padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+  }
+  .env-table th { background: var(--code-bg); color: var(--accent); font-weight: 600; }
+  .env-table td { color: var(--muted); }
+  .env-table tr:last-child td:first-child { border-bottom-left-radius: 8px; }
+  .env-table tr:last-child td:last-child { border-bottom-right-radius: 8px; }
+
+  /* Credentials table */
+  .cred-table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; font-size: 0.85rem; }
+  .cred-table th, .cred-table td {
+    text-align: left; padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+  }
+  .cred-table th { background: var(--code-bg); color: var(--accent); font-weight: 600; }
+  .cred-table td { color: var(--muted); font-family: "SF Mono", "Fira Code", Consolas, monospace; }
+  .cred-table tr:last-child td:first-child { border-bottom-left-radius: 8px; }
+  .cred-table tr:last-child td:last-child { border-bottom-right-radius: 8px; }
+
+  /* Perguntas section — print-friendly */
+  .perguntas { counter-reset: pergunta; }
+  .pergunta-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 0.75rem;
+    display: flex; align-items: flex-start; gap: 1rem;
+    page-break-inside: avoid;
+  }
+  .pergunta-item::before {
+    counter-increment: pergunta;
+    content: counter(pergunta);
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 1.8rem; height: 1.8rem; border-radius: 50%;
+    background: var(--accent); color: #0f172a;
+    font-size: 0.8rem; font-weight: 800; flex-shrink: 0;
+  }
+  .pergunta-item p { color: var(--text); font-size: 0.95rem; margin: 0; }
+
+  /* Step indicators for inline steps */
+  .step-list { list-style: none; padding: 0; }
+  .step-list li {
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    padding: 0.5rem 0;
+    font-size: 0.925rem; color: var(--text);
+  }
+  .step-list li .snum {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 1.5rem; height: 1.5rem; border-radius: 50%;
+    background: var(--accent); color: #0f172a;
+    font-size: 0.7rem; font-weight: 800; flex-shrink: 0; margin-top: 2px;
+  }
+
+  /* Alert / Tip */
+  .alert {
+    background: rgba(56, 189, 248, 0.1);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem;
+    margin: 0.75rem 0;
+    font-size: 0.875rem;
+    color: var(--text);
+  }
+  .alert strong { color: var(--accent); }
+
+  /* Buttons */
+  .btn-group { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.5rem 1.25rem; border-radius: 8px;
+    font-size: 0.875rem; font-weight: 600; cursor: pointer;
+    border: none; text-decoration: none; transition: opacity 0.2s;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn-primary { background: var(--accent); color: #0f172a; }
+  .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+
+  /* Print styles */
+  @media print {
+    body { background: #fff; color: #000; }
+    .container { max-width: 100%; padding: 1cm; }
+    header h1 { -webkit-text-fill-color: #0f172a; color: #0f172a; background: none; }
+    .card, .pergunta-item, .code-block { background: #f8fafc; border-color: #cbd5e1; }
+    .section-title .step-num, .pergunta-item::before, .step-list li .snum { background: #0f172a; color: #fff; }
+    .alert { background: #f0f9ff; border-left-color: #0f172a; }
+    .env-table th, .cred-table th { background: #e2e8f0; color: #0f172a; }
+    .code-block { color: #1e293b; }
+    .code-block .prompt { color: #059669; }
+    .btn-group { display: none; }
+    .inline-code { background: #e2e8f0; color: #0f172a; }
+    .checklist li::before { color: #0f172a; }
+    .no-print { display: none !important; }
+    a { color: #0f172a; text-decoration: underline; }
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .container { padding: 1rem; }
+    header h1 { font-size: 1.5rem; }
+    header p { font-size: 0.925rem; }
+    .section-title { font-size: 1.1rem; }
+    .card { padding: 1rem; }
+    .env-table, .cred-table { font-size: 0.75rem; }
+    .env-table th, .env-table td, .cred-table th, .cred-table td { padding: 0.35rem 0.5rem; }
+    .pergunta-item { padding: 1rem; }
+    .code-block { font-size: 0.75rem; padding: 0.6rem 0.75rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <h1>LARY AI &mdash; Guia de Deploy &amp; Piloto</h1>
+    <p>Prepare o MVP para um cliente real em 30 minutos</p>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="window.print()">&#128424; Imprimir / PDF</button>
+    </div>
+  </header>
+
+  <!-- PRÉ-REQUISITOS -->
+  <section>
+    <div class="section-title">
+      <span class="step-num">&#10003;</span>
+      Pré-requisitos
+    </div>
+    <div class="card">
+      <ul class="checklist">
+        <li>Conta no <strong>Render</strong> (gratuita) ou Railway</li>
+        <li>Conta no <strong>Supabase</strong> (gratuita)</li>
+        <li>Chave da <strong>OpenAI</strong> (gratuita: $5 de cr&eacute;dito inicial)</li>
+        <li><strong>Expo Go</strong> instalado no celular</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- PASSO 1 -->
+  <section>
+    <div class="section-title">
+      <span class="step-num passo">1</span>
+      Deploy do Backend (Render)
+    </div>
+    <div class="card">
+      <ol class="step-list">
+        <li><span class="snum">1</span> Fazer fork do reposit&oacute;rio no GitHub</li>
+        <li><span class="snum">2</span> Conectar ao Render (New Web Service &rarr; Connect GitHub repo)</li>
+        <li><span class="snum">3</span> Configurar vari&aacute;veis de ambiente no Render:</li>
+      </ol>
+      <table class="env-table">
+        <thead>
+          <tr><th>Vari&aacute;vel</th><th>Valor</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>DATABASE_URL</code></td><td>Connection string do Supabase (Passo 2)</td></tr>
+          <tr><td><code>OPENAI_API_KEY</code></td><td>Chave da OpenAI</td></tr>
+          <tr><td><code>JWT_SECRET</code></td><td>Gerar com <code class="inline-code">openssl rand -hex 32</code></td></tr>
+        </tbody>
+      </table>
+      <ol class="step-list">
+        <li value="4"><span class="snum">4</span> Clicar em <strong>Deploy</strong> &mdash; o Render far&aacute; o build e deploy autom&aacute;tico</li>
+      </ol>
+      <div class="alert">
+        <strong>&#8505; Dica:</strong> O deploy inicial leva de 3 a 5 minutos. Acompanhe os logs para garantir que n&atilde;o h&aacute; erros.
+      </div>
+    </div>
+  </section>
+
+  <!-- PASSO 2 -->
+  <section>
+    <div class="section-title">
+      <span class="step-num passo">2</span>
+      Deploy do Banco (Supabase)
+    </div>
+    <div class="card">
+      <ol class="step-list">
+        <li><span class="snum">1</span> Criar um projeto gratuito em <strong>supabase.com</strong></li>
+        <li><span class="snum">2</span> Ir em <strong>SQL Editor</strong>, copiar o conte&uacute;do de <code class="inline-code">supabase/init.sql</code> e colar &rarr; <strong>Run</strong></li>
+        <li><span class="snum">3</span> Configurar a <code class="inline-code">DATABASE_URL</code> local e rodar o seed:</li>
+      </ol>
+      <div class="code-block">
+        <span class="comment"># No terminal, na raiz do projeto:</span><br>
+        <span class="prompt">$</span> export DATABASE_URL="postgresql://..."<br>
+        <span class="prompt">$</span> npm run seed
+      </div>
+      <ol class="step-list">
+        <li value="4"><span class="snum">4</span> Anotar a <strong>DATABASE_URL</strong> e a <strong>Anon Key</strong> (Settings &rarr; API)</li>
+      </ol>
+      <div class="alert">
+        <strong>&#8505; Dica:</strong> Salve a Anon Key para usar no frontend (como <code class="inline-code">EXPO_PUBLIC_SUPABASE_ANON_KEY</code> se necess&aacute;rio).
+      </div>
+    </div>
+  </section>
+
+  <!-- PASSO 3 -->
+  <section>
+    <div class="section-title">
+      <span class="step-num passo">3</span>
+      Configurar Frontend
+    </div>
+    <div class="card">
+      <ol class="step-list">
+        <li><span class="snum">1</span> No arquivo <code class="inline-code">.env</code> do frontend, atualizar:</li>
+      </ol>
+      <div class="code-block">
+        EXPO_PUBLIC_API_URL=https://seu-app.onrender.com/api
+      </div>
+      <ol class="step-list">
+        <li value="2"><span class="snum">2</span> Rodar o app local:</li>
+      </ol>
+      <div class="code-block">
+        <span class="prompt">$</span> npx expo start
+      </div>
+      <ol class="step-list">
+        <li value="3"><span class="snum">3</span> Abrir o <strong>Expo Go</strong> no celular e ler o QR code</li>
+        <li value="4"><span class="snum">4</span> (Opcional) Build para produ&ccedil;&atilde;o com EAS:</li>
+      </ol>
+      <div class="code-block">
+        <span class="prompt">$</span> npx eas build --platform all --profile production
+      </div>
+    </div>
+  </section>
+
+  <!-- PASSO 4 -->
+  <section>
+    <div class="section-title">
+      <span class="step-num passo">4</span>
+      Testar o Piloto
+    </div>
+    <div class="card">
+      <h3>Credenciais de teste</h3>
+      <table class="cred-table">
+        <thead>
+          <tr><th>Perfil</th><th>E-mail</th><th>Senha</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Mestre</td><td>mestre@obra.com</td><td>123456</td></tr>
+          <tr><td>Engenheiro</td><td>engenheiro@obra.com</td><td>123456</td></tr>
+          <tr><td>Admin</td><td>admin@lary.ai</td><td>123456</td></tr>
+        </tbody>
+      </table>
+      <h3>Fluxo de teste completo (5 telas)</h3>
+      <ol class="step-list">
+        <li><span class="snum">1</span> Login com um dos perfis acima</li>
+        <li><span class="snum">2</span> Dashboard &rarr; ver resumo da obra</li>
+        <li><span class="snum">3</span> Di&aacute;rio de obra &rarr; registrar um evento</li>
+        <li><span class="snum">4</span> Aprova&ccedil;&otilde;es &rarr; simular aprova&ccedil;&atilde;o de documento</li>
+        <li><span class="snum">5</span> Perfil &rarr; ver dados do usu&aacute;rio</li>
+      </ol>
+      <h3>Testar offline</h3>
+      <p>Ativar <strong>Modo Avi&atilde;o</strong> no celular e verificar se as funcionalidades offline funcionam (di&aacute;rio, cache de leitura).</p>
+    </div>
+  </section>
+
+  <!-- PASSO 5 -->
+  <section>
+    <div class="section-title">
+      <span class="step-num passo">5</span>
+      Coletar Feedback
+    </div>
+    <div class="card">
+      <ol class="step-list">
+        <li><span class="snum">1</span> Ap&oacute;s cada uso do cliente, perguntar: <em>&ldquo;O que travou?&rdquo;</em></li>
+        <li><span class="snum">2</span> Anotar o <strong>NPS</strong> (&ldquo;De 0 a 10, quanto recomendaria?&rdquo;)</li>
+        <li><span class="snum">3</span> Registrar os insights no Kanban do projeto (<code class="inline-code">dashboard/index.html</code>)</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- PERGUNTAS PARA O CLIENTE -->
+  <section>
+    <div class="section-title">
+      <span class="step-num">?</span>
+      Perguntas para o cliente no piloto
+      <span style="font-size:0.7rem; font-weight:400; color:var(--muted); margin-left:auto;">&mdash; imprimir e levar</span>
+    </div>
+    <div class="perguntas">
+      <div class="pergunta-item">
+        <p>Voc&ecirc; conseguiu usar sem ajuda?</p>
+      </div>
+      <div class="pergunta-item">
+        <p>O que te fez perder tempo?</p>
+      </div>
+      <div class="pergunta-item">
+        <p>Quanto voc&ecirc; pagaria por isso?</p>
+      </div>
+      <div class="pergunta-item">
+        <p>Indicaria para outra construtora?</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="text-align:center; padding:2rem 0 1rem; border-top:1px solid var(--border); margin-top:1rem;">
+    <p style="color:var(--muted); font-size:0.8rem;">
+      LARY AI &mdash; <span id="year"></span> &bull; MVP &bull; Deploy Guide v1.0
+    </p>
+  </footer>
+
+</div>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
